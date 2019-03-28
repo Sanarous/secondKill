@@ -1,0 +1,11 @@
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+
+spring:
+  datasource:
+    name: miaosha
+    username: root
+    password: root
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/miaosha
+    type: com.alibaba.druid.pool.DruidDataSource
