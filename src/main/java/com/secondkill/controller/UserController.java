@@ -32,15 +32,39 @@ public class UserController extends BaseController {
     private HttpServletRequest httpServletRequest;
 
     /**
-     * 用户注册接口
+     * 用户登陆接口
      * @param telphone
-     * @param optCode
-     * @param name
-     * @param gender
-     * @param age
      * @param password
      * @return
-     * @throws BusinessException
+     */
+    @PostMapping(value = "/login",consumes = {CONTEXT_TYPE_FORMED})
+    public CommonReturnType login(@RequestParam("telphone") String telphone,
+                                  @RequestParam("encrptPassword") String password) throws BusinessException, UnsupportedEncodingException, NoSuchAlgorithmException {
+        //入参校验
+        if(org.apache.commons.lang3.StringUtils.isEmpty(telphone) || org.apache.commons.lang3.StringUtils.isEmpty(password)){
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
+        }
+
+        //用户登陆服务，用来校验用户登陆是否合法
+        UserModel userModel = userService.validateLogin(telphone, this.encodeByMD5(password));
+
+        //将登陆凭证加入到用户登陆成功的session内
+        this.httpServletRequest.getSession().setAttribute("IS_LOGIN",true);
+        this.httpServletRequest.getSession().setAttribute("LOGIN_USER",userModel);
+
+        return CommonReturnType.create(null);
+    }
+
+    /**
+     * 用户注册接口
+     * @param telphone  手机号
+     * @param optCode  验证码
+     * @param name  用户昵称
+     * @param gender  性别
+     * @param age  年龄
+     * @param password  密码
+     * @return 通用返回类型
+     * @throws BusinessException  自定义异常
      */
     @PostMapping(value = "/register",consumes = {CONTEXT_TYPE_FORMED})
     public CommonReturnType register(@RequestParam(name = "telphone") String telphone,
@@ -69,10 +93,10 @@ public class UserController extends BaseController {
 
     /**
      * MD5加密
-     * @param str
-     * @return
-     * @throws NoSuchAlgorithmException
-     * @throws UnsupportedEncodingException
+     * @param str  任一字符串
+     * @return  字符串
+     * @throws NoSuchAlgorithmException  算术异常
+     * @throws UnsupportedEncodingException  不支持编码异常
      */
     public String encodeByMD5(String str) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         //确定计算方法
@@ -85,8 +109,8 @@ public class UserController extends BaseController {
 
     /**
      * 用户获取otp短信接口
-     * @param telphone
-     * @return
+     * @param telphone  手机号
+     * @return  返回
      */
     @PostMapping(value = "/getotp",consumes = {CONTEXT_TYPE_FORMED})
     public CommonReturnType getOtp(@RequestParam(name = "telphone") String telphone){
@@ -107,8 +131,8 @@ public class UserController extends BaseController {
 
     /**
      * 根据用户id获取用户信息
-     * @param id
-     * @return
+     * @param id 用户id
+     * @return  通用返回类型
      */
     @GetMapping("/get")
     public CommonReturnType getUser(@RequestParam(name = "id") Integer id){
@@ -129,8 +153,8 @@ public class UserController extends BaseController {
 
     /**
      * 将User信息的领域模型转换成UserVO给前端用户
-     * @param userModel
-     * @return
+     * @param userModel  用户模型
+     * @return 返回给UI的字段
      */
     private UserVO convertFromModel(UserModel userModel){
         if(userModel == null){

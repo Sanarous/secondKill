@@ -63,6 +63,13 @@
     from user_info
     where id = #{id,jdbcType=INTEGER}
   </select>
+    <!-- 根据用户手机号获取用户信息 -->
+    <select id="selectByTelphone" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from user_info
+        where telphone=#{telphone,jdbcType=VARCHAR}
+    </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     delete from user_info
     where id = #{id,jdbcType=INTEGER}

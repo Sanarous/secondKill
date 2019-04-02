@@ -11,6 +11,7 @@ public class CommonReturnType {
     //若status=fail，则data内使用通用的错误码格式
     private Object data;
 
+    public CommonReturnType(){}
 
     //定义一个通用的创建的方法
     public static CommonReturnType create(Object result){

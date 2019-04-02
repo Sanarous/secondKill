@@ -8,11 +8,13 @@ import com.secondkill.error.BusinessException;
 import com.secondkill.error.EmBusinessError;
 import com.secondkill.service.UserService;
 import com.secondkill.service.model.UserModel;
-import org.apache.commons.lang3.StringUtils;
+import com.secondkill.validator.ValidationResult;
+import com.secondkill.validator.ValidatorImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 用户信息Service
@@ -26,10 +28,13 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserPasswordMapper userPasswordMapper;
 
+    @Autowired
+    private ValidatorImpl validator;
+
     /**
      * 根据id获取用户信息
-     * @param id
-     * @return
+     * @param id  用户id
+     * @return 组合对象模型
      */
     @Override
     public UserModel getUserById(Integer id) {
@@ -46,9 +51,9 @@ public class UserServiceImpl implements UserService {
 
     /**
      * 组合对象
-     * @param user
-     * @param userPassword
-     * @return
+     * @param user 单表查询的一个User表信息
+     * @param userPassword  携带密码的User表
+     * @return  组合user对象
      */
     private UserModel convertFromDataObject(User user, UserPassword userPassword){
         if(user == null) return null;
@@ -63,14 +68,26 @@ public class UserServiceImpl implements UserService {
         return userModel;
     }
 
+    /**
+     * 注册业务
+     * @param userModel 用户信息
+     * @throws BusinessException  自定义异常
+     */
     @Override
+    @Transactional
     public void register(UserModel userModel) throws BusinessException{
         if(userModel == null){
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
         }
-        if(StringUtils.isEmpty(userModel.getName()) || userModel.getGender() == null || userModel.getAge() == null || StringUtils.isEmpty(userModel.getTelphone())){
-            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR.setErrMsg("未知参数错误"));
+
+//        if(StringUtils.isEmpty(userModel.getName()) || userModel.getGender() == null || userModel.getAge() == null || StringUtils.isEmpty(userModel.getTelphone())){
+//            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR.setErrMsg("未知参数错误"));
+//        }
+        ValidationResult result = validator.validate(userModel);
+        if(result.isHasErrors()){
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,result.getErrMsg());
         }
+
         //实现model -> dataObject方法
         User user = convertFromModel(userModel);
         try{
@@ -102,5 +119,27 @@ public class UserServiceImpl implements UserService {
         userPassword.setUserId(userModel.getId());
 
         return userPassword;
+    }
+
+    /**
+     * 登陆实现
+     * @param telphone  用户注册手机
+     * @param encrptPassword  用户加密密码
+     */
+    @Override
+    public UserModel validateLogin(String telphone, String encrptPassword) throws BusinessException {
+        //通过用户手机获取用户信息
+        User user = userMapper.selectByTelphone(telphone);
+        if(user == null){
+            throw new BusinessException((EmBusinessError.USER_LOGIN_FAIL));
+        }
+        UserPassword userPassword = userPasswordMapper.selectByUserId(user.getId());
+
+        UserModel userModel = convertFromDataObject(user,userPassword);
+        //对比用户信息内加密的密码是否和用户登陆输入的密码匹配
+        if(!com.alibaba.druid.util.StringUtils.equals(encrptPassword,userModel.getEncrptPassword())){
+            throw new BusinessException((EmBusinessError.USER_LOGIN_FAIL));
+        }
+        return userModel;
     }
 }

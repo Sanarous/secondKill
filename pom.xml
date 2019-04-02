@@ -40,6 +40,11 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-validator</artifactId>
+            <version>5.3.4.Final</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -96,11 +101,19 @@
                     <!-- 允许移动生成的文件 -->
                     <verbose>true</verbose>
                     <!-- 允许自动覆盖文件 -->
-                    <overwrite>true</overwrite>
-                    <!-- myabtis-generator的配置文件 -->
+                    <overwrite>false</overwrite>
+                    <!-- mybatis-generator的配置文件 -->
                     <configurationFile>
                         src/main/resources/mybatis-generator.xml
                     </configurationFile>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
                 </configuration>
             </plugin>
         </plugins>
