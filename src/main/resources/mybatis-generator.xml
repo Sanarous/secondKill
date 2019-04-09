@@ -37,6 +37,7 @@
         <!--<table tableName="item" domainObjectName="Item" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" selectByExampleQueryId="false"/>-->
         <!--<table tableName="item_stock" domainObjectName="ItemStock" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" selectByExampleQueryId="false"/>-->
         <!--<table tableName="order_info" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false"/>-->
-        <table tableName="sequence_info" domainObjectName="SequenceInfo" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" selectByExampleQueryId="false"/>
+        <!--<table tableName="sequence_info" domainObjectName="SequenceInfo" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" selectByExampleQueryId="false"/>-->
+        <table tableName="promo" domainObjectName="Promo" enableCountByExample="false" enableUpdateByExample="false" enableDeleteByExample="false" selectByExampleQueryId="false"/>
     </context>
 </generatorConfiguration>

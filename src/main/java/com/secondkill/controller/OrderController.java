@@ -31,14 +31,15 @@ public class OrderController extends BaseController{
      */
     @PostMapping(value = "/createorder",consumes = {CONTEXT_TYPE_FORMED})
     public CommonReturnType createOrder(@RequestParam("itemId") Integer itemId,
-                                        @RequestParam("amount") Integer amount) throws Exception {
+                                        @RequestParam("amount") Integer amount,
+                                        @RequestParam(value = "promId",required = false) Integer promId) throws Exception {
         //获取用户的登陆信息
         Boolean isLogin = (Boolean) httpServletRequest.getSession().getAttribute("IS_LOGIN");
         if(isLogin == null || !isLogin){
             throw new BusinessException(EmBusinessError.USER_NOT_LOGIN);
         }
         UserModel userModel = (UserModel) httpServletRequest.getSession().getAttribute("LOGIN_USER");
-        OrderModel orderModel = orderService.createOrder(userModel.getId(), itemId, amount);
+        OrderModel orderModel = orderService.createOrder(userModel.getId(), itemId, promId, amount);
 
         return CommonReturnType.create(null);
     }

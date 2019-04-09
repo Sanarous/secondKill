@@ -21,9 +21,13 @@ public class OrderModel {
     //购买商品id
     private Integer itemId;
 
+    //若非空，表示以秒杀方式下单
+    private Integer promId;
+
     //购买数量
     private Integer amount;
 
     //购买金额
     private BigDecimal orderPrice;
+
 }

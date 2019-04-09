@@ -7,7 +7,9 @@ import com.secondkill.dataobject.ItemStock;
 import com.secondkill.error.BusinessException;
 import com.secondkill.error.EmBusinessError;
 import com.secondkill.service.ItemService;
+import com.secondkill.service.PromoService;
 import com.secondkill.service.model.ItemModel;
+import com.secondkill.service.model.PromoModel;
 import com.secondkill.validator.ValidationResult;
 import com.secondkill.validator.ValidatorImpl;
 import org.springframework.beans.BeanUtils;
@@ -34,6 +36,9 @@ public class ItemServiceImpl implements ItemService {
     @Autowired
     private ItemStockMapper itemStockMapper;
 
+    @Autowired
+    private PromoService promoService;
+
     /**
      * 根据商品id获取商品领域模型
      * @param id  商品id
@@ -47,7 +52,15 @@ public class ItemServiceImpl implements ItemService {
         ItemStock itemStock = itemStockMapper.selectByItemId(item.getId());
 
         //将dataObject转换成Model
-        return convertModelFromObject(item, itemStock);
+        ItemModel itemModel = convertModelFromObject(item, itemStock);
+
+        //获取活动商品信息
+        PromoModel promoModel = promoService.getPromoByItemId(itemModel.getId());
+        if(promoModel != null && promoModel.getStatus().intValue() != 3){
+            itemModel.setPromoModel(promoModel);
+        }
+
+        return itemModel;
     }
 
     /**
@@ -57,6 +70,7 @@ public class ItemServiceImpl implements ItemService {
      * @return  boolean
      */
     @Override
+    @Transactional
     public boolean decreaseStock(Integer itemId, Integer amount) {
         int affectedRow = itemStockMapper.decreaseStock(itemId, amount);
         if(affectedRow > 0){
